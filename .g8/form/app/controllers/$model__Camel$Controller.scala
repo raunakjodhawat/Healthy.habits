@@ -1,10 +1,6 @@
 package controllers
 
-import javax.inject._
-import play.api.mvc._
-
-import play.api.data._
-import play.api.data.Forms._
+import javax.inject.*
 
 case class $model;format="Camel"$Data(name: String, age: Int)
 
