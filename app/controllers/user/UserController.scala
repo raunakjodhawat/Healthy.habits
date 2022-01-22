@@ -35,4 +35,17 @@ class UserController @Inject() (val controllerComponents: ControllerComponents)
         case _       => NoContent
       }
   }
+
+  /** Check if user is already present
+    *  if no: initiate registration process
+    *     - ask for phone number and country code
+    *      - send randomly generated OTP to phone number, and save OTP + phone number + country Code in pendingOTPVerification
+    *        - Ask for OTP or option to re-send OTP
+    * @return
+    */
+  def createUser(): Action[AnyContent] = Action {
+    implicit request: Request[AnyContent] =>
+      NoContent
+  }
+
 }
