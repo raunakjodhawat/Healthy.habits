@@ -5,4 +5,9 @@ case class Users(
     secretPhrase: Option[String],
     secretQuestion: Option[String],
     secretAnswer: Option[String]
-) {}
+)
+
+case class PendingOTPVerification(
+    phoneNumber: String,
+    countryCode: String
+)

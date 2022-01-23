@@ -1,10 +1,12 @@
 package controllers.user
 
-import models.users.Users
+import models.users.{PendingOTPVerification, Users}
 
 import javax.inject._
 import play.api.mvc._
 import play.api.libs.json._
+import play.api.libs.functional.syntax._
+
 import scala.collection.mutable.ListBuffer
 
 /** Contains all User related pre-checks
@@ -19,6 +21,7 @@ class UserController @Inject() (val controllerComponents: ControllerComponents)
   allUsers.append(Users(123456999, None, None, None))
   allUsers.append(Users(987645211, None, None, None))
   implicit val result = Json.format[Users]
+  implicit val pendingOTPReads = Json.reads[PendingOTPVerification]
 
   /** Returns list of all users, only if the incoming username and password match
     * @return List of all users from the database
@@ -45,7 +48,31 @@ class UserController @Inject() (val controllerComponents: ControllerComponents)
     */
   def createUser(): Action[AnyContent] = Action {
     implicit request: Request[AnyContent] =>
+      val body: AnyContent = request.body
+      println(body.asJson)
       NoContent
   }
 
+  /** Checks if there's any entry with the selected phone number and country code in the database
+    * If yes, Send a SMS to the phone number with OTP
+    * else, generates a random otp
+    *      Put phone number, country code and otp in pendingOTPVerification
+    *      Send SMS to the phone number with OTP
+    *
+    * Required Parameter in request body: phoneNumber: String(10), countryCode: String(max 6)
+    * @return 204 if OTP is successfully generated, otherwise 400
+    */
+  def initiateCreateUser(): Action[AnyContent] = Action {
+    implicit request: Request[AnyContent] =>
+      request.body.asJson
+        .map { json =>
+          Json.fromJson[PendingOTPVerification](json) match {
+            case JsSuccess(value, path) => Ok("Request created")
+            case _                      => BadRequest
+          }
+        }
+        .getOrElse {
+          BadRequest
+        }
+  }
 }
