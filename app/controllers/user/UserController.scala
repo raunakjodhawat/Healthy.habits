@@ -1,11 +1,12 @@
 package controllers.user
 
+import com.twitter.finagle.Postgres
+import models.users.PendingOTPVerification.initiateUserCreation
 import models.users.{PendingOTPVerification, Users}
 
 import javax.inject._
 import play.api.mvc._
 import play.api.libs.json._
-import play.api.libs.functional.syntax._
 
 import scala.collection.mutable.ListBuffer
 
@@ -22,6 +23,17 @@ class UserController @Inject() (val controllerComponents: ControllerComponents)
   allUsers.append(Users(987645211, None, None, None))
   implicit val result = Json.format[Users]
   implicit val pendingOTPReads = Json.reads[PendingOTPVerification]
+  val client = Postgres
+    .Client()
+    .withCredentials("postgres", Some("password"))
+    .database("healthyHabitsPostgres")
+    .withSessionPool
+    .maxSize(1)
+    .withBinaryResults(true)
+    .withBinaryParams(true)
+    .withTransport
+    .tls("localhost")
+    .newRichClient("localhost:5430")
 
   /** Returns list of all users, only if the incoming username and password match
     * @return List of all users from the database
@@ -67,8 +79,12 @@ class UserController @Inject() (val controllerComponents: ControllerComponents)
       request.body.asJson
         .map { json =>
           Json.fromJson[PendingOTPVerification](json) match {
-            case JsSuccess(value, path) => Ok("Request created")
-            case _                      => BadRequest
+            case JsSuccess(value, _) => {
+              println(value)
+              initiateUserCreation(value, client)
+              Ok("Request created")
+            }
+            case _ => BadRequest
           }
         }
         .getOrElse {

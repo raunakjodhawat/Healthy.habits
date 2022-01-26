@@ -9,7 +9,10 @@ scalaVersion := "2.12.15"
 
 libraryDependencies += guice
 libraryDependencies += "org.scalatestplus.play" %% "scalatestplus-play" % "5.1.0" % Test
-
+libraryDependencies ++= Seq(
+  "org.postgresql" % "postgresql" % "42.3.1",
+  "io.github.finagle" %% "finagle-postgres" % "0.13.0"
+)
 // Adds additional packages into Twirl
 //TwirlKeys.templateImports += "com.raunakjodhawat.controllers._"
 
