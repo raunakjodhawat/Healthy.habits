@@ -1,9 +1,5 @@
 package models.users
-
-import com.twitter.finagle.Postgres
-import com.twitter.finagle.postgres.PostgresClientImpl
-import com.twitter.util.Await
-
+import scala.slick.driver.PostgresDriver.simple._
 case class Users(
     phoneNumber: Long,
     secretPhrase: Option[String],
@@ -19,13 +15,10 @@ case class PendingOTPVerification(
 case object PendingOTPVerification {
   protected def checkIfUserExists(): Unit = {}
   def initiateUserCreation(
-      pendingOTP: PendingOTPVerification,
-      client: PostgresClientImpl
+      pendingOTP: PendingOTPVerification
   ): Boolean = {
-    val create = Await.result {
-      client.execute("select * from pendingotpverification")
-    }
-    println(create)
+
+    println("hello")
     false
   }
 }
